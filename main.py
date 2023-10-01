@@ -1,6 +1,5 @@
 from janome.tokenizer import Tokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from scipy.sparse import spmatrix
 
 
 def text_optimize(text: str) -> str:
@@ -33,12 +32,14 @@ def execute_important_words(corpus: list[str]):
 
         # TF-IDFスコアが高い上位3つの単語を抽出し、配列の index を生成 -> 抽出
         # TF = 該当文書における頻出率 × IDF = 全文書における頻出率の低さ
-        important_words_indices = tfidf_scores.argsort()[::-1][:3]
+        important_words_indices = tfidf_scores.argsort()[::-1][:5]
+        not_import_words_indices = tfidf_scores.argsort()[:5]
 
         # index から単語を取得
         important_words = [feature_names[idx] for idx in important_words_indices]
+        not_import_words = [feature_names[idx] for idx in not_import_words_indices]
 
-        print(f"文書 {i + 1} の重要な単語:", important_words)
+        print(f"文書 {i + 1} の重要な単語:", important_words, "そうでない単語:", not_import_words)
 
 
 # 分割したい日本語の文章のコーパス
@@ -54,3 +55,6 @@ execute_important_words(tokenized_corpus)
 
 # qdrant で近似する文書を引っ張ってきて tf-idf -> 格納。
 # index は都度更新しなければならないと思われる
+# index = tokenize された文書タイトル, not importance words, importance words
+# タイトルに文書を表す言葉を入れてください
+# chunk テキスト自体にこれを適用するべき？ chunk 化されたテキストの中だけでこれを行うとどうなるか？
